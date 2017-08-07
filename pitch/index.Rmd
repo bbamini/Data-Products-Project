@@ -1,0 +1,78 @@
+---
+title       : Global Socioeconomic Evaluation
+subtitle    : Application in Shiny
+author      : Bamini Balaji
+job         : 
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [htmlwidgets]            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+---
+
+## Overview
+
+This presentation is part of the Developing Data Products Coursera course project submission.
+
+The goal of this project was to create a shiny application to visualize worldwide socioeconomic indicators over time. 
+
+Data was sourced from the [Kaggle dataset](https://www.kaggle.com/sdorius/countryses) 
+
+The shiny application can be found [here](https://bbamini.shinyapps.io/socioeconomic/)
+
+The Github repository containing the code for the shiny app can be found [here](https://github.com/bbamini/Data-Products-Project)
+
+--- .class #id 
+
+## Kaggle Data Set
+
+Three socioeconomic indicators were evaluated:
+
+- GDP per capita
+- Socioeconomic status score
+- Years of education a typical adult underwent
+
+Here are the years that were considered in this evaluation
+```{r, echo=FALSE}
+setwd('..')
+socio <- read.csv("GLOBCSES.csv", header = TRUE, colClasses = c("integer", "factor", "factor", "numeric", "numeric", "factor", "numeric", "numeric", "factor", "factor"))
+socio$year[1:14]
+```
+
+Here are the number of countries that were evaluated:
+```{r, echo=FALSE}
+nlevels(socio$country)
+```
+
+---
+
+## Table Visualization
+
+The Best and Worst tab in the app displays the 10 countries with the lowest values and 10 countries with the highest values for the economic indicator in a given year. 
+
+Here is the output for the 5 countries with highest GDP per capita in 2010 
+```{r, echo=FALSE, warning=FALSE, comment=FALSE, message=FALSE}
+interest <- socio[, c(3, 4, 5, 7, 8)]
+yr_interest <- subset(interest, year == 2010)
+yr_interest[order(yr_interest$gdppc, decreasing = TRUE),][1:5,c(1,3,4,5)]
+```
+
+```{r, echo=FALSE, warning=FALSE, comment=FALSE, message=FALSE}
+library(ggplot2)
+library(plotly)
+library(webshot)
+```
+
+---
+
+## Map Visualization
+
+Here is the output for the global distribution of GDP per capita in 2010 
+
+```{r echo=TRUE, warning=FALSE, comment=FALSE, message=FALSE, results=FALSE}
+g <- list(showframe = FALSE, showcoastlines = TRUE, projection = list(type = 'Mercator'))
+p <- plot_geo(yr_interest) %>% add_trace(z = ~gdppc, color = ~gdppc, text = yr_interest$country, locations = yr_interest$country, locationmode = "country names") %>% colorbar(title = "GDP Per Capita", limits = c(500, 50000)) %>% layout(geo = g)
+htmlwidgets::saveWidget(as.widget(p), file = "demo.html")
+```
+<iframe src="demo.html" style="position:absolute;height:70%;width:70%"></iframe>
