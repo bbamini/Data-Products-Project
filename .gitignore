@@ -1,4 +1,4 @@
-pitch/.cache/*
-pitch/.nojekyll
-pitch/rsconnect/*
+docs/.cache/*
+docs/.nojekyll
+docs/rsconnect/*
 rsconnect/*
